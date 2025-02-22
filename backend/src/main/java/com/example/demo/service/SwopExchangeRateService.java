@@ -4,6 +4,8 @@ import com.example.demo.dto.ExchangeRateDto;
 import com.example.demo.enums.Currency;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.net.URI;
 
 @Service
 public class SwopExchangeRateService {
+    private static final Logger logger = LoggerFactory.getLogger(SwopExchangeRateService.class);
+
     private static final String API_URL = "https://swop.cx/rest/rates";
     private static final String API_KEY = "xxx";
 
@@ -29,8 +33,9 @@ public class SwopExchangeRateService {
 
     @Cacheable(value = "exchangeRates", key = "#baseCurrency + '-' + #targetCurrency")
     public BigDecimal getExchangeRate(Currency baseCurrency, Currency targetCurrency) throws Exception {
-        String query = API_URL + "/" + baseCurrency + "/" + targetCurrency;
+        logger.info("Fetching exchange rate: {} -> {}", baseCurrency, targetCurrency);
 
+        String query = API_URL + "/" + baseCurrency + "/" + targetCurrency;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(query))
                 .header("Authorization", "ApiKey " + API_KEY)
@@ -39,7 +44,14 @@ public class SwopExchangeRateService {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            logger.error("Failed to fetch exchange rate: {} -> {}. Status: {}", baseCurrency, targetCurrency, response.statusCode());
+            throw new Exception("Exchange rate API error");
+        }
+
         ExchangeRateDto exchangeRateDto = objectMapper.readValue(response.body(), ExchangeRateDto.class);
+
+        logger.info("Exchange rate fetched successfully: {} -> {} = {}", baseCurrency, targetCurrency, exchangeRateDto.getQuote());
 
         return exchangeRateDto.getQuote();
     }
