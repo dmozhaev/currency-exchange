@@ -4,6 +4,7 @@ import com.example.demo.dto.ExchangeRateDto;
 import com.example.demo.enums.Currency;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ import java.net.URI;
 @Service
 public class SwopExchangeRateService {
     private static final String API_URL = "https://swop.cx/rest/rates";
-    private static final String API_KEY = "462b22a014a3b7bc68393476c1b6d373a5b0268da7b5c43b43de236cb4664bdf";
+    private static final String API_KEY = "xxx";
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
@@ -26,6 +27,7 @@ public class SwopExchangeRateService {
         this.objectMapper.registerModule(new JavaTimeModule());
     }
 
+    @Cacheable(value = "exchangeRates", key = "#baseCurrency + '-' + #targetCurrency")
     public BigDecimal getExchangeRate(Currency baseCurrency, Currency targetCurrency) throws Exception {
         String query = API_URL + "/" + baseCurrency + "/" + targetCurrency;
 
