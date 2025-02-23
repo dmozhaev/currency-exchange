@@ -5,6 +5,7 @@ import axios from 'axios';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { conversionSchema, ConversionType } from '../schema/conversionSchema';
+import { Currency } from '../schema/currencies';
 
 const API_BASE_URL = "http://localhost:8080";
 
@@ -56,7 +57,14 @@ const FrontPage = () => {
 
         <Form.Group className="mb-3">
           <Form.Label>Source Currency *</Form.Label>
-          <Form.Control {...register("sourceCurrency")} type="text" className={`form-control ${errors.sourceCurrency ? "is-invalid" : ""}`} />
+          <Form.Select {...register("sourceCurrency")} className={`form-control ${errors.sourceCurrency ? "is-invalid" : ""}`}>
+            <option value="">-- Select source currency --</option>
+            {Object.values(Currency).map((currency) => (
+              <option key={currency} value={currency}>
+                {currency}
+              </option>
+            ))}
+          </Form.Select>
           <Form.Text className="invalid-feedback">
             {errors.sourceCurrency?.message}
           </Form.Text>
@@ -64,7 +72,14 @@ const FrontPage = () => {
 
         <Form.Group className="mb-3">
           <Form.Label>Target Currency *</Form.Label>
-          <Form.Control {...register("targetCurrency")} type="text" className={`form-control ${errors.targetCurrency ? "is-invalid" : ""}`} />
+          <Form.Select {...register("targetCurrency")} className={`form-control ${errors.targetCurrency ? "is-invalid" : ""}`}>
+            <option value="">-- Select target currency --</option>
+            {Object.values(Currency).map((currency) => (
+              <option key={currency} value={currency}>
+                {currency}
+              </option>
+            ))}
+          </Form.Select>
           <Form.Text className="invalid-feedback">
             {errors.targetCurrency?.message}
           </Form.Text>
