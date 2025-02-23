@@ -11,18 +11,21 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(ConversionController.class)
+@WithMockUser
 public class ConvertCurrencyIntegrationTest {
 
     private static final String URL = "/convert/";
@@ -49,10 +52,24 @@ public class ConvertCurrencyIntegrationTest {
         BigDecimal expectedResponse = new BigDecimal("105.00");
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(expectedResponse.toString()));
+    }
+
+    @Test
+    void validRequestNoCsrfTokenForbidden() throws Exception {
+        ConversionDto request = new ConversionDto();
+        request.setSourceCurrency(Currency.EUR);
+        request.setTargetCurrency(Currency.USD);
+        request.setAmount(new BigDecimal("100.00"));
+
+        mockMvc.perform(post(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -63,6 +80,7 @@ public class ConvertCurrencyIntegrationTest {
         request.setAmount(new BigDecimal("100.123"));
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -76,6 +94,7 @@ public class ConvertCurrencyIntegrationTest {
         request.setAmount(new BigDecimal("-100.00"));
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -89,6 +108,7 @@ public class ConvertCurrencyIntegrationTest {
         request.setAmount(new BigDecimal("1000001"));
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -102,6 +122,7 @@ public class ConvertCurrencyIntegrationTest {
         request.setAmount(new BigDecimal("100.00"));
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -112,6 +133,7 @@ public class ConvertCurrencyIntegrationTest {
         String invalidRequest = "{ \"sourceCurrency\": \"XYZ\", \"targetCurrency\": \"EUR\", \"amount\": 100.00 }";
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequest))
                 .andExpect(status().isBadRequest());
@@ -122,6 +144,7 @@ public class ConvertCurrencyIntegrationTest {
         String invalidRequest = "{ \"sourceCurrency\": \"USD\", \"targetCurrency\": \"FOO\", \"amount\": 100.00 }";
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequest))
                 .andExpect(status().isBadRequest());
@@ -132,6 +155,7 @@ public class ConvertCurrencyIntegrationTest {
         String invalidRequest = "{ \"sourceCurrency\": \"USD\", \"targetCurrency\": \"EUR\", \"amount\": \"BAR\" }";
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequest))
                 .andExpect(status().isBadRequest());
@@ -145,6 +169,7 @@ public class ConvertCurrencyIntegrationTest {
         request.setAmount(BigDecimal.ZERO);
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -158,6 +183,7 @@ public class ConvertCurrencyIntegrationTest {
         request.setAmount(new BigDecimal("100.00"));
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -171,6 +197,7 @@ public class ConvertCurrencyIntegrationTest {
         request.setAmount(new BigDecimal("100.00"));
 
         mockMvc.perform(post(URL)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
