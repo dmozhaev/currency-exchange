@@ -20,15 +20,16 @@ public class SwopExchangeRateService {
     private static final Logger logger = LoggerFactory.getLogger(SwopExchangeRateService.class);
 
     private static final String API_URL = "https://swop.cx/rest/rates";
-    private static final String API_KEY = "xxx";
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
+    private final String apiKey;
 
     public SwopExchangeRateService() {
         this.httpClient = HttpClient.newHttpClient();
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
+        this.apiKey = System.getenv("API_KEY");
     }
 
     @Cacheable(value = "exchangeRates", key = "#baseCurrency + '-' + #targetCurrency")
@@ -38,7 +39,7 @@ public class SwopExchangeRateService {
         String query = API_URL + "/" + baseCurrency + "/" + targetCurrency;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(query))
-                .header("Authorization", "ApiKey " + API_KEY)
+                .header("Authorization", "ApiKey " + apiKey)
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();
