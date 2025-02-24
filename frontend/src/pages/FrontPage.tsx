@@ -64,12 +64,14 @@ const FrontPage = () => {
   return (
     <div className="container">
       <Form onSubmit={handleSubmit(onSubmitFunc)}>
-        <h2>💵 Currency Converter</h2>
+        <h2 data-testid="container-header">💵 Currency Converter</h2>
         <br />
 
         <Form.Group className="form-group">
           <Form.Label>Source Currency *</Form.Label>
-          <Form.Select {...register('sourceCurrency')} className={`form-control ${errors.sourceCurrency ? 'is-invalid' : ''}`}>
+          <Form.Select {...register('sourceCurrency')}
+                       data-testid="sourceCurrency-select"
+                       className={`form-control ${errors.sourceCurrency ? 'is-invalid' : ''}`}>
             <option value="">-- Select source currency --</option>
             {Object.values(Currency).map((currency) => (
               <option key={currency} value={currency}>
@@ -77,14 +79,16 @@ const FrontPage = () => {
               </option>
             ))}
           </Form.Select>
-          <Form.Text className="invalid-feedback">
+          <Form.Text className="invalid-feedback" data-testid="sourceCurrency-error">
             {errors.sourceCurrency?.message}
           </Form.Text>
         </Form.Group>
 
         <Form.Group className="form-group">
           <Form.Label>Target Currency *</Form.Label>
-          <Form.Select {...register('targetCurrency')} className={`form-control ${errors.targetCurrency ? 'is-invalid' : ''}`}>
+          <Form.Select {...register('targetCurrency')}
+                       data-testid="targetCurrency-select"
+                       className={`form-control ${errors.targetCurrency ? 'is-invalid' : ''}`}>
             <option value="">-- Select target currency --</option>
             {Object.values(Currency).map((currency) => (
               <option key={currency} value={currency}>
@@ -92,31 +96,35 @@ const FrontPage = () => {
               </option>
             ))}
           </Form.Select>
-          <Form.Text className="invalid-feedback">
+          <Form.Text className="invalid-feedback" data-testid="targetCurrency-error">
             {errors.targetCurrency?.message}
           </Form.Text>
         </Form.Group>
 
         <Form.Group className="form-group">
           <Form.Label>Amount *</Form.Label>
-          <Form.Control {...register('amount')} type="number" step="0.01" className={`form-control ${errors.amount ? 'is-invalid' : ''}`} />
-          <Form.Text className="invalid-feedback">
+          <Form.Control {...register('amount')}
+                        data-testid="amount-input"
+                        type="number"
+                        step="0.01"
+                        className={`form-control ${errors.amount ? 'is-invalid' : ''}`} />
+          <Form.Text className="invalid-feedback" data-testid="amount-error">
             {errors.amount?.message}
           </Form.Text>
         </Form.Group>
 
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" data-testid="submit">
           Submit
         </Button>
       </Form>
 
       {conversionResult && (
-        <div className="result-box">
+        <div className="result-box" data-testid="result-box">
           <h4>Conversion Result</h4>
           <p>
             {formatCurrency(conversionResult.amount, conversionResult.sourceCurrency)}
             &nbsp;=&nbsp;
-            <strong>{formatCurrency(conversionResult.result, conversionResult.targetCurrency)}</strong>
+            <strong data-testid="result-box-result">{formatCurrency(conversionResult.result, conversionResult.targetCurrency)}</strong>
           </p>
         </div>
       )}
