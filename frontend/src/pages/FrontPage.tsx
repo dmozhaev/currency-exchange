@@ -7,6 +7,7 @@ import Button from 'react-bootstrap/Button';
 import { conversionSchema, ConversionType } from '../schema/conversionSchema';
 import { Currency } from '../schema/currencies';
 import { getCsrfToken, convertCurrency } from '../rest';
+import "./frontpage.css";
 
 const FrontPage = () => {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
@@ -56,12 +57,12 @@ const FrontPage = () => {
   };
 
   return (
-    <>
+    <div className="container">
       <Form onSubmit={handleSubmit(onSubmitFunc)}>
-        <h2>Enter currency rates:</h2>
+        <h2>💵 Currency Converter</h2>
         <br />
 
-        <Form.Group className="mb-3">
+        <Form.Group className="form-group">
           <Form.Label>Source Currency *</Form.Label>
           <Form.Select {...register("sourceCurrency")} className={`form-control ${errors.sourceCurrency ? "is-invalid" : ""}`}>
             <option value="">-- Select source currency --</option>
@@ -76,7 +77,7 @@ const FrontPage = () => {
           </Form.Text>
         </Form.Group>
 
-        <Form.Group className="mb-3">
+        <Form.Group className="form-group">
           <Form.Label>Target Currency *</Form.Label>
           <Form.Select {...register("targetCurrency")} className={`form-control ${errors.targetCurrency ? "is-invalid" : ""}`}>
             <option value="">-- Select target currency --</option>
@@ -91,7 +92,7 @@ const FrontPage = () => {
           </Form.Text>
         </Form.Group>
 
-        <Form.Group className="mb-3">
+        <Form.Group className="form-group">
           <Form.Label>Amount *</Form.Label>
           <Form.Control {...register("amount")} type="number" step="0.01" className={`form-control ${errors.amount ? "is-invalid" : ""}`} />
           <Form.Text className="invalid-feedback">
@@ -105,8 +106,8 @@ const FrontPage = () => {
       </Form>
 
       {conversionResult && (
-        <div className="mt-4 p-3 border rounded bg-light">
-          <h4>Conversion Result:</h4>
+        <div className="result-box">
+          <h4>Conversion Result</h4>
           <p>
             {formatCurrency(conversionResult.amount, conversionResult.sourceCurrency)}
             &nbsp;=&nbsp;
@@ -114,7 +115,7 @@ const FrontPage = () => {
           </p>
         </div>
       )}
-    </>
+    </div>
   )
 }
 
