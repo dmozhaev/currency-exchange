@@ -15,6 +15,7 @@ const FrontPage = () => {
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ConversionType>({
     resolver: yupResolver(conversionSchema),
+    mode: "onChange",
   })
 
   useEffect(() => {
