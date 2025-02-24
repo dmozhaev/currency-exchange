@@ -31,6 +31,9 @@ const FrontPage = () => {
   }, [])
 
   const onSubmitFunc = async (data: ConversionType) => {
+    if (!csrfToken) {
+      return
+    }
     try {
       const response = await convertCurrency(data, csrfToken)
 
@@ -45,10 +48,17 @@ const FrontPage = () => {
       reset()
 
       toast.success('Conversion successful! 🎉', { duration: 3000 })
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error during conversion:', error)
 
-      toast.error('Error during conversion, please try again: ❌' + error.response.data, { duration: 10000 })
+      if (error instanceof Error) {
+        const axiosError = error as { response?: { data?: string } };
+        const errorMessage = axiosError.response?.data ?? error.message;
+
+        toast.error(`Error during conversion, please try again: ❌ ${errorMessage}`, { duration: 10000 });
+      } else {
+        toast.error('An unknown error occurred during conversion.', { duration: 10000 });
+      }
     }
   }
 
