@@ -8,10 +8,10 @@ import { conversionSchema, ConversionType } from '../schema/conversionSchema';
 import { Currency } from '../schema/currencies';
 import { getCsrfToken, convertCurrency } from '../rest';
 
-const API_BASE_URL = "http://localhost:8080";
-
 const FrontPage = () => {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const [conversionResult, setConversionResult] = useState<ConversionType & { result: number } | null>(null);
+
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ConversionType>({
     resolver: yupResolver(conversionSchema),
   });
@@ -32,6 +32,13 @@ const FrontPage = () => {
     try {
       const response = await convertCurrency(data, csrfToken);
 
+      setConversionResult({
+        sourceCurrency: data.sourceCurrency,
+        targetCurrency: data.targetCurrency,
+        amount: data.amount,
+        result: response.data,
+      });
+
       console.log("Conversion Response:", response.data);
       reset();
     } catch (error) {
@@ -39,7 +46,17 @@ const FrontPage = () => {
     }
   };
 
+  const formatCurrency = (value: number, currency: string) => {
+    return new Intl.NumberFormat(navigator.language, {
+      style: "currency",
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
+
   return (
+    <>
       <Form onSubmit={handleSubmit(onSubmitFunc)}>
         <h2>Enter currency rates:</h2>
         <br />
@@ -86,6 +103,18 @@ const FrontPage = () => {
           Submit
         </Button>
       </Form>
+
+      {conversionResult && (
+        <div className="mt-4 p-3 border rounded bg-light">
+          <h4>Conversion Result:</h4>
+          <p>
+            {formatCurrency(conversionResult.amount, conversionResult.sourceCurrency)}
+            &nbsp;=&nbsp;
+            <strong>{formatCurrency(conversionResult.result, conversionResult.targetCurrency)}</strong>
+          </p>
+        </div>
+      )}
+    </>
   )
 }
 
