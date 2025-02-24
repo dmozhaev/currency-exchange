@@ -84,6 +84,12 @@ button:hover {
   background: var(--dark-green);
 }
 
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .result-box {
   margin-top: 20px;
   padding: 15px;

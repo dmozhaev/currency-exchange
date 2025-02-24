@@ -13,9 +13,9 @@ const FrontPage = () => {
   const [csrfToken, setCsrfToken] = useState<string | null>(null)
   const [conversionResult, setConversionResult] = useState<ConversionType & { result: number } | null>(null)
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<ConversionType>({
+  const { register, handleSubmit, formState: { errors, isValid }, reset } = useForm<ConversionType>({
     resolver: yupResolver(conversionSchema),
-    mode: "onChange",
+    mode: 'onChange',
   })
 
   useEffect(() => {
@@ -70,8 +70,8 @@ const FrontPage = () => {
         <Form.Group className="form-group">
           <Form.Label>Source Currency *</Form.Label>
           <Form.Select {...register('sourceCurrency')}
-                       data-testid="sourceCurrency-select"
-                       className={`form-control ${errors.sourceCurrency ? 'is-invalid' : ''}`}>
+            data-testid="sourceCurrency-select"
+            className={`form-control ${errors.sourceCurrency ? 'is-invalid' : ''}`}>
             <option value="">-- Select source currency --</option>
             {Object.values(Currency).map((currency) => (
               <option key={currency} value={currency}>
@@ -87,8 +87,8 @@ const FrontPage = () => {
         <Form.Group className="form-group">
           <Form.Label>Target Currency *</Form.Label>
           <Form.Select {...register('targetCurrency')}
-                       data-testid="targetCurrency-select"
-                       className={`form-control ${errors.targetCurrency ? 'is-invalid' : ''}`}>
+            data-testid="targetCurrency-select"
+            className={`form-control ${errors.targetCurrency ? 'is-invalid' : ''}`}>
             <option value="">-- Select target currency --</option>
             {Object.values(Currency).map((currency) => (
               <option key={currency} value={currency}>
@@ -104,16 +104,16 @@ const FrontPage = () => {
         <Form.Group className="form-group">
           <Form.Label>Amount *</Form.Label>
           <Form.Control {...register('amount')}
-                        data-testid="amount-input"
-                        type="number"
-                        step="0.01"
-                        className={`form-control ${errors.amount ? 'is-invalid' : ''}`} />
+            data-testid="amount-input"
+            type="number"
+            step="0.01"
+            className={`form-control ${errors.amount ? 'is-invalid' : ''}`} />
           <Form.Text className="invalid-feedback" data-testid="amount-error">
             {errors.amount?.message}
           </Form.Text>
         </Form.Group>
 
-        <Button variant="primary" type="submit" data-testid="submit">
+        <Button variant="primary" type="submit" data-testid="submit" disabled={!isValid}>
           Submit
         </Button>
       </Form>
