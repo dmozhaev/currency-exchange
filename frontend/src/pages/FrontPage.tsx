@@ -6,6 +6,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { conversionSchema, ConversionType } from '../schema/conversionSchema';
 import { Currency } from '../schema/currencies';
+import { getCsrfToken, convertCurrency } from '../rest';
 
 const API_BASE_URL = "http://localhost:8080";
 
@@ -18,9 +19,7 @@ const FrontPage = () => {
   useEffect(() => {
     const fetchCsrfToken = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/security/csrf`, {
-          withCredentials: true,
-        });
+        const response = await getCsrfToken();
         setCsrfToken(response.data.token);
       } catch (error) {
         console.error("Error fetching CSRF token:", error);
@@ -29,19 +28,9 @@ const FrontPage = () => {
     fetchCsrfToken();
   }, []);
 
-  const onSubmitFunc = async (data: SignInType) => {
+  const onSubmitFunc = async (data: ConversionType) => {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/convert/`,
-        data,
-        {
-          headers: {
-            "X-XSRF-TOKEN": csrfToken,
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await convertCurrency(data, csrfToken);
 
       console.log("Conversion Response:", response.data);
       reset();
