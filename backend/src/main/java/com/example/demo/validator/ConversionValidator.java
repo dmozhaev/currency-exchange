@@ -9,7 +9,7 @@ import java.util.List;
 public class ConversionValidator {
     private static final BigDecimal MAX_AMOUNT = new BigDecimal("1000000");
 
-    public static void validateConversionRequest(ConversionDto dto) throws Exception {
+    public static void validateConversionRequest(ConversionDto dto) throws IllegalArgumentException {
         List<String> errors = new ArrayList<>();
 
         // Validate source currency
@@ -43,7 +43,7 @@ public class ConversionValidator {
         }
 
         if (!errors.isEmpty()) {
-            throw new Exception(String.join(", ", errors));
+            throw new IllegalArgumentException (String.join(", ", errors));
         }
     }
 }

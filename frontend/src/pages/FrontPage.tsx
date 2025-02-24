@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button'
 import { conversionSchema, ConversionType } from '../schema/conversionSchema'
 import { Currency } from '../schema/currencies'
 import { getCsrfToken, convertCurrency } from '../rest'
+import { toast, Toaster } from 'react-hot-toast'
 import './frontpage.css'
 
 const FrontPage = () => {
@@ -41,8 +42,12 @@ const FrontPage = () => {
 
       console.log('Conversion Response:', response.data)
       reset()
+
+      toast.success('Conversion successful! 🎉', { duration: 3000 })
     } catch (error) {
       console.error('Error during conversion:', error)
+
+      toast.error('Error during conversion, please try again: ❌' + error.response.data, { duration: 10000 })
     }
   }
 
@@ -114,9 +119,10 @@ const FrontPage = () => {
           </p>
         </div>
       )}
+
+      <Toaster position="top-center" />
     </div>
   )
 }
 
 export default FrontPage
-

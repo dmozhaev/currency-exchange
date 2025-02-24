@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -33,7 +34,7 @@ public class SwopExchangeRateService {
     }
 
     @Cacheable(value = "exchangeRates", key = "#baseCurrency + '-' + #targetCurrency")
-    public BigDecimal getExchangeRate(Currency baseCurrency, Currency targetCurrency) throws Exception {
+    public BigDecimal getExchangeRate(Currency baseCurrency, Currency targetCurrency) throws IOException, IllegalStateException, SecurityException, InterruptedException {
         logger.info("Fetching exchange rate: {} -> {}", baseCurrency, targetCurrency);
 
         String query = API_URL + "/" + baseCurrency + "/" + targetCurrency;
@@ -44,16 +45,33 @@ public class SwopExchangeRateService {
                 .GET()
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() != 200) {
-            logger.error("Failed to fetch exchange rate: {} -> {}. Status: {}", baseCurrency, targetCurrency, response.statusCode());
-            throw new Exception("Exchange rate API error");
+        try {
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            int statusCode = response.statusCode();
+            if (statusCode != 200) {
+                String errorBody = response.body();
+                logger.error("Failed to fetch exchange rate: {} -> {}. Status: {}. Body: {}", baseCurrency, targetCurrency, statusCode, errorBody);
+
+                if (statusCode == 401) {
+                    throw new SecurityException("Unauthorized access - API key is invalid.");
+                }
+                if (statusCode == 403 && errorBody.contains("Please upgrade your account to perform this request")) {
+                    throw new IllegalStateException("Feature not available in free tier account");
+                }
+                if (statusCode >= 500 && statusCode <= 599) {
+                    throw new IOException("API service error (5xx) - Server issue.");
+                }
+                throw new IOException("Exchange rate API error - Status code: " + statusCode);
+            }
+
+            ExchangeRateDto exchangeRateDto = objectMapper.readValue(response.body(), ExchangeRateDto.class);
+
+            logger.info("Exchange rate fetched successfully: {} -> {} = {}", baseCurrency, targetCurrency, exchangeRateDto.getQuote());
+
+            return exchangeRateDto.getQuote();
+        } catch (IOException | IllegalStateException | SecurityException | InterruptedException e) {
+            logger.error("Error while fetching or processing the exchange rate: {}", e.getMessage());
+            throw e;
         }
-
-        ExchangeRateDto exchangeRateDto = objectMapper.readValue(response.body(), ExchangeRateDto.class);
-
-        logger.info("Exchange rate fetched successfully: {} -> {} = {}", baseCurrency, targetCurrency, exchangeRateDto.getQuote());
-
-        return exchangeRateDto.getQuote();
     }
 }
