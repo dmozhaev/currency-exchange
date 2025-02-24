@@ -1,7 +1,6 @@
 package com.example.demo.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -19,7 +18,8 @@ public class ExchangeRateDto {
 
     public ExchangeRateDto() {}
 
-    public ExchangeRateDto(String baseCurrency, String quoteCurrency, BigDecimal quote, LocalDate date) {
+    public ExchangeRateDto(
+            String baseCurrency, String quoteCurrency, BigDecimal quote, LocalDate date) {
         this.baseCurrency = baseCurrency;
         this.quoteCurrency = quoteCurrency;
         this.quote = quote;

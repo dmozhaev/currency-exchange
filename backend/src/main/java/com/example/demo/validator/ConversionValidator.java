@@ -1,7 +1,6 @@
 package com.example.demo.validator;
 
 import com.example.demo.dto.ConversionDto;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +8,8 @@ import java.util.List;
 public class ConversionValidator {
     private static final BigDecimal MAX_AMOUNT = new BigDecimal("1000000");
 
-    public static void validateConversionRequest(ConversionDto dto) throws IllegalArgumentException {
+    public static void validateConversionRequest(ConversionDto dto)
+            throws IllegalArgumentException {
         List<String> errors = new ArrayList<>();
 
         // Validate source currency
@@ -23,7 +23,8 @@ public class ConversionValidator {
         }
 
         // Ensure source and target currencies should be different
-        if (dto.getSourceCurrency() != null && dto.getSourceCurrency().equals(dto.getTargetCurrency())) {
+        if (dto.getSourceCurrency() != null
+                && dto.getSourceCurrency().equals(dto.getTargetCurrency())) {
             errors.add("Source and target currencies must be different.");
         }
 
@@ -43,7 +44,7 @@ public class ConversionValidator {
         }
 
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException (String.join(", ", errors));
+            throw new IllegalArgumentException(String.join(", ", errors));
         }
     }
 }

@@ -15,12 +15,14 @@ public class ExceptionHandler {
         logger.error("Exception caught in handler: {}", ex.getMessage(), ex);
 
         String errorMessage = ex.getMessage();
-        HttpStatus status = switch (ex) {
-            case IllegalArgumentException illegalArgumentException -> HttpStatus.BAD_REQUEST;
-            case SecurityException securityException -> HttpStatus.BAD_REQUEST;
-            case IllegalStateException illegalStateException -> HttpStatus.BAD_REQUEST;
-            default -> HttpStatus.INTERNAL_SERVER_ERROR;
-        };
+        HttpStatus status =
+                switch (ex) {
+                    case IllegalArgumentException illegalArgumentException ->
+                            HttpStatus.BAD_REQUEST;
+                    case SecurityException securityException -> HttpStatus.BAD_REQUEST;
+                    case IllegalStateException illegalStateException -> HttpStatus.BAD_REQUEST;
+                    default -> HttpStatus.INTERNAL_SERVER_ERROR;
+                };
 
         return ResponseEntity.status(status).body(errorMessage);
     }

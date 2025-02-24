@@ -4,17 +4,16 @@ import com.example.demo.dto.ExchangeRateDto;
 import com.example.demo.enums.Currency;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.net.http.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.*;
-import java.net.URI;
 
 @Service
 public class SwopExchangeRateService {
@@ -34,28 +33,38 @@ public class SwopExchangeRateService {
     }
 
     @Cacheable(value = "exchangeRates", key = "#baseCurrency + '-' + #targetCurrency")
-    public BigDecimal getExchangeRate(Currency baseCurrency, Currency targetCurrency) throws IOException, IllegalStateException, SecurityException, InterruptedException {
+    public BigDecimal getExchangeRate(Currency baseCurrency, Currency targetCurrency)
+            throws IOException, IllegalStateException, SecurityException, InterruptedException {
         logger.info("Fetching exchange rate: {} -> {}", baseCurrency, targetCurrency);
 
         String query = API_URL + "/" + baseCurrency + "/" + targetCurrency;
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(query))
-                .header("Authorization", "ApiKey " + apiKey)
-                .header("Content-Type", "application/json")
-                .GET()
-                .build();
+        HttpRequest request =
+                HttpRequest.newBuilder()
+                        .uri(URI.create(query))
+                        .header("Authorization", "ApiKey " + apiKey)
+                        .header("Content-Type", "application/json")
+                        .GET()
+                        .build();
 
         try {
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             int statusCode = response.statusCode();
             if (statusCode != 200) {
                 String errorBody = response.body();
-                logger.error("Failed to fetch exchange rate: {} -> {}. Status: {}. Body: {}", baseCurrency, targetCurrency, statusCode, errorBody);
+                logger.error(
+                        "Failed to fetch exchange rate: {} -> {}. Status: {}. Body: {}",
+                        baseCurrency,
+                        targetCurrency,
+                        statusCode,
+                        errorBody);
 
                 if (statusCode == 401) {
                     throw new SecurityException("Unauthorized access - API key is invalid.");
                 }
-                if (statusCode == 403 && errorBody.contains("Please upgrade your account to perform this request")) {
+                if (statusCode == 403
+                        && errorBody.contains(
+                                "Please upgrade your account to perform this request")) {
                     throw new IllegalStateException("Feature not available in free tier account");
                 }
                 if (statusCode >= 500 && statusCode <= 599) {
@@ -64,13 +73,19 @@ public class SwopExchangeRateService {
                 throw new IOException("Exchange rate API error - Status code: " + statusCode);
             }
 
-            ExchangeRateDto exchangeRateDto = objectMapper.readValue(response.body(), ExchangeRateDto.class);
+            ExchangeRateDto exchangeRateDto =
+                    objectMapper.readValue(response.body(), ExchangeRateDto.class);
 
-            logger.info("Exchange rate fetched successfully: {} -> {} = {}", baseCurrency, targetCurrency, exchangeRateDto.getQuote());
+            logger.info(
+                    "Exchange rate fetched successfully: {} -> {} = {}",
+                    baseCurrency,
+                    targetCurrency,
+                    exchangeRateDto.getQuote());
 
             return exchangeRateDto.getQuote();
         } catch (IOException | IllegalStateException | SecurityException | InterruptedException e) {
-            logger.error("Error while fetching or processing the exchange rate: {}", e.getMessage());
+            logger.error(
+                    "Error while fetching or processing the exchange rate: {}", e.getMessage());
             throw e;
         }
     }
