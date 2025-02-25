@@ -12,6 +12,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +24,14 @@ public class SwopExchangeRateService {
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
-    private final String apiKey;
+
+    @Value("${api.key}")
+    private String apiKey;
 
     public SwopExchangeRateService() {
         this.httpClient = HttpClient.newHttpClient();
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        this.apiKey = System.getenv("API_KEY");
     }
 
     @Cacheable(value = "exchangeRates", key = "#baseCurrency + '-' + #targetCurrency")

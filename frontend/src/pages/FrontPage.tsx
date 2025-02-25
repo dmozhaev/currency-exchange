@@ -52,12 +52,12 @@ const FrontPage = () => {
       console.error('Error during conversion:', error)
 
       if (error instanceof Error) {
-        const axiosError = error as { response?: { data?: string } };
-        const errorMessage = axiosError.response?.data ?? error.message;
+        const axiosError = error as { response?: { data?: string } }
+        const errorMessage = axiosError.response?.data ?? error.message
 
-        toast.error(`Error during conversion, please try again: ❌ ${errorMessage}`, { duration: 10000 });
+        toast.error(`Error during conversion, please try again: ❌ ${errorMessage}`, { duration: 10000 })
       } else {
-        toast.error('An unknown error occurred during conversion.', { duration: 10000 });
+        toast.error('An unknown error occurred during conversion.', { duration: 10000 })
       }
     }
   }
@@ -123,7 +123,7 @@ const FrontPage = () => {
           </Form.Text>
         </Form.Group>
 
-        <Button variant="primary" type="submit" data-testid="submit" disabled={!isValid}>
+        <Button variant="primary" type="submit" data-testid="submit" disabled={!isValid || !csrfToken}>
           Submit
         </Button>
       </Form>
