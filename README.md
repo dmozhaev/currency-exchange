@@ -2,6 +2,8 @@
 
 A full-stack currency conversion application with a **Spring Boot backend**, **React frontend**, and **Cypress E2E testing**. The app allows users to convert currencies using real-time exchange rates, which are provided by a free tier of https://swop.cx/ website.
 
+![currency_converter](https://github.com/user-attachments/assets/39c8150e-578e-411f-8894-01973eaeb653)
+
 ## 🚀 Features
 - Convert between different currencies
 - Secure backend with CSRF protection
